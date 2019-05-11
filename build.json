@@ -1,0 +1,24 @@
+{
+  "name": "EarthView Wallpapers",
+  "version": "0.0.1",
+  "identifier": "me.dags.ev",
+  "icon": "icon.png",
+  "output": "builds",
+  "setup": [],
+  "targets": {
+    "linux/amd64": {
+      "compress": true,
+      "meta": {
+        "categories": "Utility"
+      }
+    },
+    "darwin/amd64": {
+      "compress": true
+    },
+    "windows/amd64": {
+      "compress": true,
+      "generate": ["goversioninfo -64"],
+      "flags": ["-H=windowsgui"]
+    }
+  }
+}
