@@ -14,9 +14,12 @@
         "categories": "Utility"
       }
     },
-    "darwin/amd64": {},
+    "darwin/amd64": {
+      "icon": "assets/icon.icns"
+    },
     "windows/amd64": {
       "compress": false,
+      "icon": "assets/icon.ico",
       "generate": ["goversioninfo -64"],
       "flags": ["-H=windowsgui"]
     }
