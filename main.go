@@ -1,12 +1,15 @@
 package main
 
 import (
-	"net/http"
 	"encoding/json"
-	"time"
-	"github.com/reujab/wallpaper"
-	"github.com/getlantern/systray"
 	"math/rand"
+	"net/http"
+	"runtime"
+	"time"
+
+	"github.com/GeertJohan/go.rice"
+	"github.com/getlantern/systray"
+	"github.com/reujab/wallpaper"
 )
 
 const url = "https://raw.githubusercontent.com/limhenry/earthview/master/earthview.json"
@@ -15,16 +18,26 @@ type Wallpaper struct {
 	Image string `json:"image"`
 }
 
+type Config struct {
+	Current string `json:"current"`
+	Pause   bool   `json:"pause"`
+}
+
+var (
+	box = rice.MustFindBox("assets")
+)
+
 func main() {
-	systray.Run(ready, quit)
+	systray.Run(ready, func() {})
 }
 
 func ready() {
 	var wallpapers []Wallpaper
 	fetch(url, &wallpapers)
 
-	interval := time.Minute * 30
-	systray.SetTitle("EV")
+	interval := time.Minute * 60
+	systray.SetIcon(icon())
+	pause := systray.AddMenuItem("Pause", "Keep the current wallpaper")
 	next := systray.AddMenuItem("Next", "Skip to the next wallpaper")
 	quit := systray.AddMenuItem("Quit", "Stop the app")
 
@@ -36,21 +49,40 @@ func ready() {
 		for _, w := range wallpapers {
 			wallpaper.SetFromURL(w.Image)
 			timer := time.NewTimer(interval)
-			select {
-			case <- quit.ClickedCh:
-				systray.Quit()
-				return
-			case <-next.ClickedCh:
-				continue
-			case <-timer.C:
-				continue
+			for first, paused := true, false; first || paused; first = false {
+				select {
+				case <-quit.ClickedCh:
+					systray.Quit()
+					return
+				case <-next.ClickedCh:
+					paused = false
+					togglePause(pause, paused)
+					continue
+				case <-pause.ClickedCh:
+					paused = !paused
+					togglePause(pause, paused)
+					continue
+				case <-timer.C:
+					continue
+				}
 			}
 		}
 	}
 }
 
-func quit() {
+func togglePause(i *systray.MenuItem, pause bool) {
+	if pause {
+		i.SetTitle("Unpause")
+	} else {
+		i.SetTitle("Pause")
+	}
+}
 
+func icon() []byte {
+	if runtime.GOOS == "windows" {
+		return box.MustBytes("icon.ico")
+	}
+	return box.MustBytes("icon.png")
 }
 
 func fetch(url string, i interface{}) {

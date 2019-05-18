@@ -2,21 +2,21 @@
   "name": "EarthView Wallpapers",
   "version": "0.0.1",
   "identifier": "me.dags.ev",
-  "icon": "icon.png",
+  "icon": "assets/icon.png",
   "output": "builds",
-  "setup": [],
+  "setup": [
+    "go install github.com/GeertJohan/go.rice",
+    "rice embed"
+  ],
   "targets": {
     "linux/amd64": {
-      "compress": true,
       "meta": {
         "categories": "Utility"
       }
     },
-    "darwin/amd64": {
-      "compress": true
-    },
+    "darwin/amd64": {},
     "windows/amd64": {
-      "compress": true,
+      "compress": false,
       "generate": ["goversioninfo -64"],
       "flags": ["-H=windowsgui"]
     }
