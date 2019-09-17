@@ -1,0 +1,59 @@
+name: build
+on: [push]
+jobs:
+
+  build_windows:
+    name: Build Windows
+    runs-on: windows-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.3
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: go get -u
+      
+    - name: Get bundler
+      run: go get -u github.com/dags-/bundler
+
+    - name: Build
+      run: go run github.com/dags-/bundler -native
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: ev-windows
+        path: .builds/windows
+ 
+  build_macos:
+    name: Build macOS
+    runs-on: macOS-latest
+    steps:
+
+    - name: Set up Go 1.13
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.3
+      id: go
+
+    - name: Check out code into the Go module directory
+      uses: actions/checkout@v1
+
+    - name: Get dependencies
+      run: go get -u
+
+    - name: Get bundler
+      run: go get -u github.com/dags-/bundler
+
+    - name: Build
+      run: go run github.com/dags-/bundler -native
+
+    - uses: actions/upload-artifact@master
+      with:
+        name: ev-darwin
+        path: .builds/darwin
